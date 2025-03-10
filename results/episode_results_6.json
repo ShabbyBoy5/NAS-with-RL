@@ -1,0 +1,66 @@
+{
+    "episode": 6,
+    "average_reward": 0.0,
+    "average_accuracy": 0.0,
+    "top_architectures": [
+        {
+            "architecture": [
+                "Conv2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2D",
+                "Conv2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2D",
+                "Conv2D",
+                "MaxPooling2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2D",
+                "Conv2D",
+                "MaxPooling2D",
+                "AveragePooling2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2D",
+                "Conv2D",
+                "MaxPooling2D",
+                "AveragePooling2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        }
+    ]
+}

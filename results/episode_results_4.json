@@ -1,0 +1,67 @@
+{
+    "episode": 4,
+    "average_reward": 0.0,
+    "average_accuracy": 0.0,
+    "top_architectures": [
+        {
+            "architecture": [
+                "Conv2DTranspose",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2DTranspose",
+                "Conv2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2DTranspose",
+                "Conv2D",
+                "DepthwiseConv2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2DTranspose",
+                "Conv2D",
+                "DepthwiseConv2D",
+                "SeparableConv2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        },
+        {
+            "architecture": [
+                "Conv2DTranspose",
+                "Conv2D",
+                "DepthwiseConv2D",
+                "SeparableConv2D",
+                "MaxPooling2D",
+                "Flatten",
+                "Dense"
+            ],
+            "accuracy": 0.0,
+            "params": 0,
+            "reward": 0.0
+        }
+    ]
+}
