@@ -1,13 +1,14 @@
 import tensorflow as tf
-from tensorflow.keras.layers import (Conv2D, MaxPooling2D, AveragePooling2D,
+from keras.layers import (Conv2D, MaxPooling2D, AveragePooling2D,
                                      GlobalMaxPooling2D, GlobalAveragePooling2D,
                                      DepthwiseConv2D, SeparableConv2D, Conv2DTranspose,
                                      Dropout, BatchNormalization, Flatten, Dense,
                                      ReLU, ELU, LeakyReLU, PReLU, ThresholdedReLU,
                                      Activation,) # Added Sequential import
-from tensorflow.keras.initializers import (HeNormal, HeUniform, RandomNormal,
+from keras.initializers import (HeNormal, HeUniform, RandomNormal,
                                             RandomUniform)
-from tensorflow.keras.regularizers import l1, l2, l1_l2
+from keras.regularizers import l1, l2, l1_l2
+from keras.models import Sequential
 
 from config import INPUT_SHAPE, NUM_CLASSES, LAYER_TYPES # Import LAYER_TYPES from config.py
 
@@ -133,68 +134,24 @@ def is_valid_architecture(architecture):
     return not constraints_violated
 
 
+# In search_space.py, update the get_layer_instance function to handle activations better:
 def get_layer_instance(layer_config):
     """Creates a Keras layer instance based on the layer configuration."""
     layer_type = layer_config['type']
-    params = layer_config['params']
-
+    params = layer_config.get('params', {}).copy()  # Create copy to avoid modifying original
+    
+    # Handle special activation types uniformly across all layer types
+    activation_name = params.pop('activation', None)
+    
+    # Create the base layer without activation
     if layer_type == 'Conv2D':
-        activation_name = params.get('activation')
-        activation_layer = None
-        if activation_name == 'leaky_relu':
-            activation_layer = LeakyReLU() # Use LeakyReLU layer instance
-            params.pop('activation', None) # Remove 'activation' from params for Conv2D layer itself
-        elif activation_name: # For other activation names, they can be passed as string to Conv2D
-            params['activation'] = activation_name # Keep activation in params for Conv2D
-
-        conv2d_layer = Conv2D(**params)
-        if activation_layer:
-            return Sequential([conv2d_layer, activation_layer]) # Wrap Conv2D and Activation in Sequential
-        return conv2d_layer
-
+        base_layer = Conv2D(**params)
     elif layer_type == 'Conv2DTranspose':
-        activation_name = params.get('activation')
-        activation_layer = None
-        if activation_name == 'leaky_relu':
-            activation_layer = LeakyReLU() # Use LeakyReLU layer instance
-            params.pop('activation', None) # Remove 'activation' from params for Conv2DTranspose layer itself
-        elif activation_name: # For other activation names, they can be passed as string to Conv2DTranspose
-            params['activation'] = activation_name # Keep activation in params for Conv2DTranspose
-
-        conv2dtranspose_layer = Conv2DTranspose(**params)
-        if activation_layer:
-            return Sequential([conv2dtranspose_layer, activation_layer]) # Wrap Conv2DTranspose and Activation in Sequential
-        return conv2dtranspose_layer
-
+        base_layer = Conv2DTranspose(**params)
     elif layer_type == 'SeparableConv2D':
-        activation_name = params.get('activation')
-        activation_layer = None
-        if activation_name == 'leaky_relu':
-            activation_layer = LeakyReLU() # Use LeakyReLU layer instance
-            params.pop('activation', None) # Remove 'activation' from params for SeparableConv2D layer itself
-        elif activation_name: # For other activation names, they can be passed as string to SeparableConv2D
-            params['activation'] = activation_name # Keep activation in params for SeparableConv2D
-
-        separableconv2d_layer = SeparableConv2D(**params)
-        if activation_layer:
-            return Sequential([separableconv2d_layer, activation_layer]) # Wrap SeparableConv2D and Activation in Sequential
-        return separableconv2d_layer
-
+        base_layer = SeparableConv2D(**params)
     elif layer_type == 'DepthwiseConv2D':
-        activation_name = params.get('activation')
-        activation_layer = None
-        if activation_name == 'leaky_relu':
-            activation_layer = LeakyReLU() # Use LeakyReLU layer instance
-            params.pop('activation', None) # Remove 'activation' from params for DepthwiseConv2D layer itself
-        elif activation_name: # For other activation names, they can be passed as string to DepthwiseConv2D
-            params['activation'] = activation_name # Keep activation in params for DepthwiseConv2D
-
-        depthwiseconv2d_layer = DepthwiseConv2D(**params)
-        if activation_layer:
-            return Sequential([depthwiseconv2d_layer, activation_layer]) # Wrap DepthwiseConv2D and Activation in Sequential
-        return depthwiseconv2d_layer
-
-
+        base_layer = DepthwiseConv2D(**params)
     elif layer_type == 'MaxPooling2D':
         return MaxPooling2D(**params)
     elif layer_type == 'AveragePooling2D':
@@ -210,18 +167,25 @@ def get_layer_instance(layer_config):
     elif layer_type == 'Flatten':
         return Flatten()
     elif layer_type == 'Dense':
-        activation_name = params.get('activation')
-        activation_layer = None
-        if activation_name == 'leaky_relu':
-            activation_layer = LeakyReLU() # Use LeakyReLU layer instance
-            params.pop('activation', None) # Remove 'activation' from params for Dense layer itself
-        elif activation_name: # For other activation names, they can be passed as string to Dense
-            params['activation'] = activation_name # Keep activation in params for Dense
-
-        dense_layer = Dense(**params, units=params.get('units', NUM_CLASSES) if layer_config.get('is_output', False) else params.get('units', 128))
-        if activation_layer:
-            return Sequential([dense_layer, activation_layer]) # Wrap Dense and Activation in Sequential
-        return dense_layer
-
+        if layer_config.get('is_output', False):
+            return Dense(NUM_CLASSES, activation='softmax')
+        base_layer = Dense(**params)
     else:
         raise ValueError(f"Unknown layer type: {layer_type}")
+    
+    # Add activation layer if needed
+    if activation_name:
+        if activation_name == 'leaky_relu':
+            activation_layer = LeakyReLU()
+        elif activation_name == 'relu':
+            activation_layer = ReLU()
+        elif activation_name == 'elu':
+            activation_layer = ELU()
+        elif activation_name == 'prelu':
+            activation_layer = PReLU()
+        else:
+            activation_layer = Activation(activation_name)
+        
+        return Sequential([base_layer, activation_layer])
+    
+    return base_layer
